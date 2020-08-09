@@ -1,0 +1,17 @@
+{
+  "name": "gennri.ch-site",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "tailwindcss": "^1.6.2"
+  },
+  "devDependencies": {
+    "postcss-cli": "^7.1.1"
+  }
+}
