@@ -14,18 +14,19 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-haskell@v1.1
         with:
-          ghc-version: '8.6.5' # Exact version of ghc to use
-          # cabal-version: 'latest'. Omitted, but defalts to 'latest'
-          enable-stack: true
+          enable-stack: true 
           stack-version: 'latest'
-      - name: build site
-        run: stack exec site build
+          stack-no-global: true
+          stack-setup-ghc: true
+      - run: | 
+          stack build
+          stack exec site build
       - name: Upload ftp
         uses: sebastianpopp/ftp-action@releases/v2
         with:
           host: ${{ secrets.FTP_SERVER }}
           user: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          localDir: "_site"
-          remoteDir: "/public_html"
+          localDir: "./_site"
+          remoteDir: "./"
 
