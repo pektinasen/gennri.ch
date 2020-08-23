@@ -1,0 +1,31 @@
+# This is a basic workflow that is manually triggered
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: Build and Deploy blog
+        required: true
+        
+jobs:
+  build-and-deploy:
+    name: Build and deploy Site
+    runs-on: ubuntu-latest # or macOS-latest, or windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-haskell@v1.1
+        with:
+          ghc-version: '8.6.5' # Exact version of ghc to use
+          # cabal-version: 'latest'. Omitted, but defalts to 'latest'
+          enable-stack: true
+          stack-version: 'latest'
+      - name: build site
+        run: stack exec site build
+      - name: Upload ftp
+        uses: sebastianpopp/ftp-action@releases/v2
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          user: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          localDir: "_site"
+          remoteDir: "/public_html"
+
