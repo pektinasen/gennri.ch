@@ -1,27 +1,51 @@
 # This is a basic workflow that is manually triggered
 on:
-  workflow_dispatch:
-    inputs:
-      name:
-        description: Build and Deploy blog
-        required: true
+  push:
+    branches:
+      - main
         
 jobs:
   build-and-deploy:
     name: Build and deploy Site
     runs-on: ubuntu-latest # or macOS-latest, or windows-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-haskell@v1.1
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: setup haskell/cabal/stack
+        uses: actions/setup-haskell@v1.1
         with:
+          enable-cabal: true
           enable-stack: true 
           stack-version: 'latest'
           stack-no-global: true
           stack-setup-ghc: true
-      - run: | 
-          stack build
-          stack exec site build
-      - name: Upload ftp
+
+      - name: install build deps
+        run: stack build
+
+      - name: cache build deps
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cabal/packages
+            ~/.cabal/store
+            ~/.stack/snapshots
+            .stack-work
+            dist-newstyle
+          key: ${{ runner.os }}-${{ hashFiles('**/stack.yaml.lock') }}
+     
+      - name: build
+        run: stack exec site build
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: _site
+          path: ./_site/
+          if-no-files-found: error
+    
+      - name: deploy via ftp
         uses: sebastianpopp/ftp-action@releases/v2
         with:
           host: ${{ secrets.FTP_SERVER }}
